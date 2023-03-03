@@ -8,29 +8,42 @@ library(phyloseq)
 library(compositions)
 library(dplyr)
 
-table <- data.frame(read.delim('Jones_ForwardReads_DADA2.txt', sep= '\t'))
+table <- data.frame(read.delim('Jones/Jones_ForwardReads_DADA2.txt', sep= '\t'))
 tsub <- table %>% select(1:100)
+ts2 <- table %>% select(101:200)
 
+input_data <- list(tsub, ts2)
+input_names <- list("T1", "T2")
 
-zero_counts <- apply(table, 2, function(x) {
-  return(sum(x ==0)) }) # per sample, how many zeros counted for each taxon
-# ALR
-D <- which(zero_counts == min(zero_counts))[1] # return name of col with fewest zero counts, denominator for ALR
-alr_out <- as.matrix(compositions::alr(x=as.matrix(table + 1), ivar=D)) # add 1 to table for log functions, use D as denom
-
-# CLR
-clr_out <- as.matrix(compositions::clr(x=as.matrix(table + 1)))
-
-# ILR
-ilr_out <- as.matrix(compositions::ilr(x=as.matrix(table + 1)))
-
-# LOGNORM
-# Dr. Fodor's lognorm
-lognorm <- function(table) {
-  avg <- sum(rowSums(table))/nrow(table)
-  table <- sweep(table,1,rowSums(table),"/")
-  table <- log10(table*avg + 1)
-  return(table)
+for (i in 1:length(input_data)) {
+  data <- as.data.frame((input_data[i]))
+  zero_counts <- apply(data, 2, function(x) {
+    return(sum(x ==0)) }) # per sample, how many zeros counted for each taxon
+  # ALR
+  D <- which(zero_counts == min(zero_counts))[1] # return name of col with fewest zero counts, denominator for ALR
+  alr_out <- as.matrix(compositions::alr(x=as.matrix(data + 1), ivar=D)) # add 1 to table for log functions, use D as denom
+  
+  # CLR
+  clr_out <- as.matrix(compositions::clr(x=as.matrix(data + 1)))
+  
+  # ILR
+  ilr_out <- as.matrix(compositions::ilr(x=as.matrix(data + 1)))
+  
+  # LOGNORM
+  # Dr. Fodor's lognorm
+  lognorm <- function(table) {
+    avg <- sum(rowSums(table))/nrow(table)
+    table <- sweep(table,1,rowSums(table),"/")
+    table <- log10(table*avg + 1)
+    return(table)
+  }
+  
+  lognorm_out <- lognorm(data)
+  
+  write.csv(alr_out, paste0(input_names[i],"_alr.csv"))
+  write.csv(clr_out, paste0(input_names[i],"_clr.csv"))
+  write.csv(ilr_out, paste0(input_names[i],"_ilr.csv"))
+  write.csv(lognorm_out, paste0(input_names[i],"_lognorm.csv"))
 }
 
-lognorm_out <- lognorm(table)
+
