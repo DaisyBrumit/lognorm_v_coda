@@ -8,15 +8,13 @@ library(phyloseq)
 library(compositions)
 library(dplyr)
 
-table <- data.frame(read.delim('Jones/Jones_ForwardReads_DADA2.txt', sep= '\t'))
-tsub <- table %>% select(1:100)
-ts2 <- table %>% select(101:200)
+paths <- list("Jones_ForwardReads_DADA2.txt","Noguera-Julian_ForwardReads_DADA2.txt",
+              "Zeller_ForwardReads_DADA2.txt","Vangay_ForwardReads_DADA2.txt")
 
-input_data <- list(tsub, ts2)
-input_names <- list("T1", "T2")
+labels <- list('Jones','NJ',"Zeller","Vangay")
 
-for (i in 1:length(input_data)) {
-  data <- as.data.frame((input_data[i]))
+for (i in 1:length(paths)) {
+  data <- data.frame(read.delim(toString(paths[i]), sep= '\t'))
   zero_counts <- apply(data, 2, function(x) {
     return(sum(x ==0)) }) # per sample, how many zeros counted for each taxon
   # ALR
@@ -40,10 +38,10 @@ for (i in 1:length(input_data)) {
   
   lognorm_out <- lognorm(data)
   
-  write.csv(alr_out, paste0(input_names[i],"_alr.csv"))
-  write.csv(clr_out, paste0(input_names[i],"_clr.csv"))
-  write.csv(ilr_out, paste0(input_names[i],"_ilr.csv"))
-  write.csv(lognorm_out, paste0(input_names[i],"_lognorm.csv"))
+  write.csv(alr_out, paste0(labels[i],"_alr.csv"))
+  write.csv(clr_out, paste0(labels[i],"_clr.csv"))
+  write.csv(ilr_out, paste0(labels[i],"_ilr.csv"))
+  write.csv(lognorm_out, paste0(labels[i],"_lognorm.csv"))
 }
 
 
