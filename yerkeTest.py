@@ -5,6 +5,33 @@ import numpy as np
 from skbio.stats import composition
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import r2_score
+from sklearn.metrics import accuracy_score
+
+## RANDOM FOREST FOR CATEGORICAL INPUT
+def categoricalRF(metadata, dat):
+    # join meta and full data
+    full_table = metadata.join(dat, how='inner', on=None)  # None specifies index join. Inner b/c only want full matches
+
+    # set test and train groups
+    X = full_table.loc[:, ~full_table.columns.isin(metadata.columns)]
+    y = full_table.loc[:, full_table.columns.isin(metadata.columns)]
+    y_cat = y.select_dtypes(include=['object'])
+
+    outDict = {}
+    for column in y_cat.columns:
+        X_train, X_test, y_train, y_test = train_test_split(X, y[column], test_size=0.25, train_size=0.75,
+                                                            random_state=1)
+
+        ## train the classifier for CATEGORICAL input
+        randForest = RandomForestClassifier(n_estimators=50, random_state=1)
+        randForest.fit(X_train, y_train)
+        y_predict = randForest.predict(X_test)
+        accuracy = accuracy_score(y_test, y_predict)
+        outDict[column] = accuracy
+
+    return outDict
+
 
 # Establish sets for testing
 pathList = ['Daisy_16S/Jones_ForwardReads_DADA2.txt', 'Daisy_16S/Vangay_ForwardReads_DADA2.txt','Daisy_16S/Zeller_ForwardReads_DADA2.txt']
@@ -13,23 +40,22 @@ pathList = ['Daisy_16S/Jones_ForwardReads_DADA2.txt', 'Daisy_16S/Vangay_ForwardR
 #df = pd.read_table(pathList[0])
 df = pd.read_table('/Users/dfrybrum/Documents/FodorLab/gemelli/Jones/Jones_ForwardReads_DADA2.txt')
 
-df_sub = df.iloc[:,0:50]
+#df_sub = df.iloc[:,0:50]
 count_list = []
 
-for col_name in df_sub.columns:
-    column = df_sub[col_name]
+for col_name in df.columns:
+    column = df[col_name]
     count_list.append((column == 0).sum())
-zero_counts = pd.DataFrame(data=count_list, index=df_sub.columns)
+zero_counts = pd.DataFrame(data=count_list, index=df.columns)
 
 # Transformations
 ## A/C/I-LR
 name = pd.DataFrame(zero_counts.idxmin()).iloc[0,0]
-table = df_sub+1
+table = df+1
 
-print("MIN ZERO_COUNT\n", name)
-alr_out = composition.alr(table)
-clr_out = composition.clr(table)
-ilr_out = composition.ilr(table)
+alr_out = pd.DataFrame(composition.alr(table)).set_index(keys=table.index)
+clr_out = pd.DataFrame(composition.clr(table)).set_index(keys=table.index)
+ilr_out = pd.DataFrame(composition.ilr(table)).set_index(keys=table.index)
 
 ## lognorm
 avg = sum(table.mean(0))
@@ -42,12 +68,16 @@ logOut = np.log10(logOut*avg + 1)
 
 # import metadata for RF
 meta = pd.read_csv('/Users/dfrybrum/Documents/FodorLab/gemelli/Jones/jones_meta.csv')
-meta_sub = meta[meta.iloc[:,0].isin(table.index)]
-meta_sub.set_index(keys=meta_sub['Run'], drop=True)
-## sanity check
-if len(meta_sub.index) != len(table.index): print("Metadata and table data do not include same sample count!")
-else: print("Metadata/data sample check passed")
+meta = meta.set_index(keys=meta['Run'])
+meta = meta.drop(['Run'], axis=1) # for Jones dataset
 
-# Random Forest
+alr_cat_results = categoricalRF(meta, alr_out)
+clr_cat_results = categoricalRF(meta, clr_out)
+ilr_cat_results = categoricalRF(meta, ilr_out)
+log_cat_results = categoricalRF(meta, logOut)
+
+dictList = [alr_cat_results, clr_cat_results, ilr_cat_results, log_cat_results]
+indexKeys = np.array(['alr','clr','ilr','log'])
+accuracy_table = pd.DataFrame.from_dict(dictList)
 
 print("Beam me up, Scotty!")
