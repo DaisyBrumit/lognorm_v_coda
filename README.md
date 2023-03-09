@@ -8,7 +8,7 @@ Running this script with provided data is slwo because R loads directly to memor
 
 **Input**
 
-- One DADA2 asv count table (per study)
+- 1 DADA2 asv count table (per study)
 
 **Output**
 
@@ -19,10 +19,10 @@ This python script contains a workflow for transforming asv counts via alr, clr,
 
 **Input**
 
-- One DADA2 file per study
-- One metadata file per study (source of response variables in Random Forest)
+- 1 DADA2 file per study
+- 1 metadata file per study (source of response variables in Random Forest)
 
 **Output**
 
-- Four .csv files (per study): one table per approach
-- Two .csv files (per study): one table for each performance metric (R^2 and accuracy) 
+- 4 .csv files (per study): one table per approach
+- 2 .csv files (per study): one table for each performance metric (R^2 and accuracy) 
