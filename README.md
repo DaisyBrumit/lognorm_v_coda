@@ -26,3 +26,7 @@ This python script contains a workflow for transforming asv counts via alr, clr,
 
 - 4 .csv files (per study): one table per approach
 - 2 .csv files (per study): one table for each performance metric (R^2 and accuracy) 
+
+#### A Personal Note:
+
+Aaron's .R script used for reference when building my .py adaptation of Fodor's lognorm transformation can be found [here](https://github.com/palomnyk/balance_tree_exploration/blob/1420324b5c7a6c94cd95836835dca3e27f4d70db/lib/table_manipulations.R) or by following his repo to path `balance_tree_exploration/lib/table_manipulations.R`
