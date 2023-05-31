@@ -1,7 +1,7 @@
 # lognorm_v_coda
 testing space for transformation comparison paper
 
-## yerkeTest.R
+## yerkeTest_transformations.R
 This R script contains basic code for implementing alr, clr, ilr, and our lognorm transformation
 
 Running this script with provided data is slow because R loads directly to memory.
