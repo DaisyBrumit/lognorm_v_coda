@@ -2,7 +2,7 @@
 testing space for transformation comparison paper
 
 ## yerkeTest_transformations.R
-This R script contains basic code for implementing alr, clr, ilr, and our lognorm transformation
+This R script contains basic code for implementing alr, clr, ilr, and Fodor's lognorm transformation
 
 Running this script with provided data is slow because R loads directly to memory.
 
