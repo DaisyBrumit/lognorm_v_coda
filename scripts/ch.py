@@ -33,7 +33,7 @@ def preML_filter(table, column):
 
 rootdir = '/Users/dfrybrum/lognorm_v_coda/'
 studyList = ['Jones', 'Vangay', 'Noguera-Julian'] # study names, also subdirs for rootdir
-transforms = ('alr', 'clr', 'ilr', 'lognorm', 'tss', 'heilinger')
+transforms = ('alr', 'clr', 'philr', 'lognorm', 'tss', 'heilinger')
 
 for study in studyList:
     meta = pd.read_table('/Users/dfrybrum/beta_diversity_testing/' + study + '/meta.txt', index_col=0)
