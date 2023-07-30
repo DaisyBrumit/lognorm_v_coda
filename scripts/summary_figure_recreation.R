@@ -3,14 +3,18 @@ library(tidyverse)
 ## SET GLOBAL VARS THAT WILL NEED TO BE LOOPED
 # set working dirctory from files tab as necessary to follow expected dir layout
 study.list <- c('Jones', 'Vangay', 'Zeller', 'Noguera-Julian')
-metric.list <- c('RF_accuracy', 'multinomial_accuracy')#, 'RF_r2')
+metric.list <- c('RF_accuracy')#, 'multinomial_accuracy')
 
 ## DEFINE CORE FUNCTIONS
 
 # df_filter: remove nonsense output from incoming tables
 df_filter <- function(df) {
   df.nas <- df %>% mutate(across(everything(), ~ifelse(.x == 999, NA, .x))) # turn all 999 into na
-  df.filtered <- df.nas %>% select_if(~ !any(is.na(.))) # remove whole column if all labels are na
+  df.filtered <- df.nas %>% dplyr::select_if(~ !any(is.na(.))) # remove whole column if all labels are na
+  
+  removed.cols <- df.nas %>% dplyr::select_if(~ any(is.na(.))) # get list of na cols
+  print(paste(ncol(removed.cols), 'features removed \n', colnames(removed.cols))) # print column names
+  
   return(df.filtered)
 }
 
@@ -39,3 +43,4 @@ for (metric in metric.list) {
   plt <- multi_feature_boxplot(feature_avgs, metric)
   print(plt)
 } 
+
