@@ -1,4 +1,4 @@
-# PARSING SCRIPT ADAPTED FROM AARON YERKE'S BALANCE TREES PROJECT
+# PARSING SCRIPT TAKEN FROM AARON YERKE'S BALANCE TREES PROJECT
 # Columns follow this pattern:
 # qseqid sseqid pident length evalue bitscore score ppos
 # 
@@ -34,7 +34,7 @@ while ( TRUE ) {
   sseq = unlist(strsplit(result[2],"\\|"))[2] #dbj|AB064923|
   evalue = as.numeric(result[5])
   bitsc = as.integer(result[6])
-  # print(paste(sseq, bitsc))
+
   # add new rows and record unique vs repeat value counts for later
   if (evalue < 10^-10){
     if ( qseq %in% row.names(df)){
@@ -51,37 +51,21 @@ while ( TRUE ) {
       row.names(newRow) = qseq
       df = rbind(df, newRow)
     }
-    
   }
-  
-  # break
 }
 close(con)
 
 #print helpful sanity checks
-#print(paste("original nrow:", nrow(df)))
-#print(paste("number of unique rows:", length(unique(rownames(df)))))
+print(paste("original nrow:", nrow(df)))
+print(paste("number of unique rows:", length(unique(rownames(df)))))
 
 myT <- table(df[,"sseqid"])
 
 print(paste("ave seq/node:", mean(myT), "\nmax seq/node:", max(myT)))
 
-#pdf(file = file.path(output_dir, "graphics", "p3_parse_blast.pdf"))
-
 pdf("blastpase.pdf")
 hist(myT, breaks = 150, xlab = "Sequences per node tip", main = "Histogram of seqs per node tip")
 barplot(myT, las = 2, xlab = "Sequences per node tip", main = "Histogram of seqs per node tip")
 dev.off()
-
-# df = df[!duplicated(df),]
-# 
-# print(paste("deduplicated nrow:", nrow(df)))
-# 
-# myT = table(df[,"sseqid"])
-# 
-# print(paste("ave seq/node:", mean(myT), "\nmax seq/node:", max(myT)))
-# 
-# hist(myT, breaks = 150, xlab = "Sequences per node tip", main = "Histogram of seqs per node tip")
-# barplot(myT, las = 2, xlab = "Sequences per node tip", main = "Histogram of seqs per node tip")
 
 write.csv(df, file = "parsed_output.csv")
