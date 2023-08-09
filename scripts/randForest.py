@@ -30,10 +30,11 @@ def qualitativeRF(metadata,dat):
 
     # only use categorial metadata, join to data
     meta_cat = metadata.select_dtypes(include=['object'])
-    preFilter_table = meta_cat.join(dat, how='inner', on=None)
 
     # run RF for w/ each categorical column as 'y'
     for column in meta_cat.columns:
+        preFilter_table = pd.merge(dat, meta_cat[column], left_index=True, right_index=True, how='inner')
+
         print("CAT COLUMN: ", column)
         if column == 'host_subject_id':
             pass
@@ -103,9 +104,9 @@ def quantitativeRF(metadata, dat):
 
     # only use quantitative metadata, make one table with data
     meta_quant = metadata.select_dtypes(include=['float64', 'int64'])
-    preFilter_table = meta_quant.join(dat, how='inner', on=None)
 
     for column in meta_quant.columns:
+        preFilter_table = pd.merge(dat, meta_quant[column], left_index=True, right_index=True, how='inner')
         print("QUANT COLUMN: ", column)
         # run RF for w/ each quantitative column as 'y'
         r2List = []
@@ -143,7 +144,7 @@ def quantitativeRF(metadata, dat):
 ### RUN LAST DATA FILTER FOR COLUMN-SPECIFIC ISSUES ###
 def preML_filter(table, column):
     # drop all rows with no data
-    noNull_table = table.dropna(axis=0, how='any', subset=column)
+    noNull_table = table.dropna(axis=0, how='any')
 
     # drop rows with unique values
     unique_values = table[column].value_counts() == 1
