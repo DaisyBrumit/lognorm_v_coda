@@ -32,11 +32,11 @@ def preML_filter(table, column):
         return rowFiltered_table
 
 rootdir = '/Users/dfrybrum/lognorm_v_coda/'
-studyList = ['Jones', 'Vangay', 'Noguera-Julian'] # study names, also subdirs for rootdir
-transforms = ('alr', 'clr', 'philr', 'lognorm', 'tss', 'heilinger')
+studyList = ['Zeller', 'Vangay', 'Noguera-Julian', 'Jones'] #study names, also subdirs for rootdir
+transforms = ('alr', 'clr', 'lognorm', 'tss', 'heilinger', 'philr')
 
 for study in studyList:
-    meta = pd.read_table('/Users/dfrybrum/beta_diversity_testing/' + study + '/meta.txt', index_col=0)
+    meta = pd.read_table('/Users/dfrybrum/git/beta_diversity_testing/' + study + '/meta.txt', index_col=0)
     #if study == "Vangay":
         #meta = meta.drop('host_subject_id', axis=1)
 
@@ -44,29 +44,29 @@ for study in studyList:
     r2_df = pd.DataFrame()
     
     for transform in transforms:
-        dat_path = '/Users/dfrybrum/lognorm_v_coda/'+study+'/'+transform+'.csv'
+        dat_path = '/Users/dfrybrum/git/lognorm_v_coda/'+study+'/filtered_'+transform+'.csv'
         dat = pd.read_csv(dat_path, index_col=0)
         dat, meta = metaFilter(dat, meta)  # None specifies index join. Inner b/c only want full matches
 
         print('STUDY: ', study, '\nMETHOD: ', transform)
-        #catRF = rf.qualitativeRF(meta, dat)
+        catRF = rf.qualitativeRF(meta, dat)
         quantRF = rf.quantitativeRF(meta, dat)
 
         # expand dictionary contents
-        #acc_expand = pd.DataFrame(catRF[0])  # 0 == dictionary w/ accuracy scores to features
+        acc_expand = pd.DataFrame(catRF[0])  # 0 == dictionary w/ accuracy scores to features
         r2_expand = pd.DataFrame(quantRF)  # 0 == {r2 scores : features}
 
         length = len(r2_expand)
         trans_expand = pd.DataFrame({'transform': [transform] * length})
 
         # append contents to dataframes
-        #acc_merge = trans_expand.join(acc_expand)
+        acc_merge = trans_expand.join(acc_expand)
         r2_merge = trans_expand.join(r2_expand)
 
-        #accuracy_df = pd.concat([accuracy_df, acc_merge], ignore_index=True)
+        accuracy_df = pd.concat([accuracy_df, acc_merge], ignore_index=True)
         r2_df = pd.concat([r2_df, r2_merge], ignore_index=True)
         
-    #accuracy_df.to_csv(rootdir + study + '/' + study + '_accuracy_table.txt', sep='\t', index=False)
-    r2_df.to_csv(rootdir + study + '_r2_table.txt', sep='\t', index=False)
+    accuracy_df.to_csv(rootdir + study + '/filtered_accuracy_table.txt', sep='\t', index=False)
+    r2_df.to_csv(rootdir + study + '/filtered_r2_table.txt', sep='\t', index=False)
 
 print("beam me up, scotty!")
