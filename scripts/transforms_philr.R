@@ -7,7 +7,7 @@ if (!requireNamespace("BiocManager", quietly = TRUE)){
 }
 library(philr)
 
-con <- file('filtered_silva_ref_phyloseq.robj')
+con <- file('silva_ref_phyloseq.robj')
 ps <- readRDS(con)
 ps <- transform_sample_counts(ps, function(x) x+1)
 
